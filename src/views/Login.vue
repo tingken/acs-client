@@ -27,9 +27,10 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import Vue from 'vue'
-export default Vue.extend({
+import AcsApi from '../modules/api'
+export default {
   data: function () {
     return {
       account: '',
@@ -38,12 +39,17 @@ export default Vue.extend({
   },
   methods: {
     login: function(){
+      console.log('account:' + this.account + '; pwd:' + this.pwd);
+      let api = new AcsApi();
+      api.formLogin(this.account, this.pwd).then(() => {
       // get token
       // save token
       // redirect
+        api.getUsers();
+      });
     }
   }
-})
+}
 </script>
 
 <style scoped>
