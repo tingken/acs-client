@@ -29,7 +29,10 @@
 
 <script>
 import Vue from 'vue'
+import { mapGetters, mapMutations } from 'vuex'
+import router from '../router'
 import AcsApi from '../modules/api'
+
 export default {
   data: function () {
     return {
@@ -38,14 +41,20 @@ export default {
     }
   },
   methods: {
+    ...mapMutations(['updateInLogged', 'updateUsername', 'updateRoles', 'afterLogin']),
     login: function(){
       console.log('account:' + this.account + '; pwd:' + this.pwd);
       let api = new AcsApi();
-      api.formLogin(this.account, this.pwd).then(() => {
       // get token
-      // save token
-      // redirect
+      api.formLogin(this.account, this.pwd).then((res) => {
+        // save token
+        this.afterLogin({username: res.data.username, roles: res.data.roles})
+        // this.updateInLogged(true)
+        // this.updateUsername(res.data.username)
+        // this.updateRoles(res.data.roles)
+        // redirect
         api.getUsers();
+        router.push('admin/alarmHistory');
       });
     }
   }

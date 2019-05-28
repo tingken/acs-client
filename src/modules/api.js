@@ -1,10 +1,40 @@
 import axios from 'axios';
+import Constants from './config'
 
 axios.defaults.withCredentials = true;
 let AcsApi = (function () {
     function AcsApi() { };
+    let getResource = function (resource, page, size, sort) {
+        return new Promise((resolve, reject) => {
+            let url = Constants.API_PREFIX + resource;
+            if (page || size || sort) {
+                url = url + '?';
+                if (page) {
+                    url = url + 'page=' + page;
+                }
+                if (size) {
+                    url = url + 'size=' + size;
+                }
+                if (sort) {
+                    url = url + 'sort=' + sort;
+                }
+            }
+            axios.get(url).then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('get ' + resource + ' error');
+                console.log(error)
+                reject(error);
+            })
+        })
+    };
     AcsApi.prototype.login = function (account, pwd) {
-        axios.post('http://localhost:8081/acs/api/v1/user/login', '{"userName":"' + account + '","password":"' + pwd + '"}').then((res) => {
+        axios.post(Constants.API_PREFIX + 'api/v1/user/login', '{"userName":"' + account + '","password":"' + pwd + '"}').then((res) => {
             if (res.status === 201) {
                 // save token
                 // change status
@@ -14,7 +44,7 @@ let AcsApi = (function () {
     };
     AcsApi.prototype.formLogin = function (account, pwd) {
         return new Promise((resolve, reject) => {
-            axios.post('http://localhost:8081/acs/perform_login', 'username=' + account + '&password=' + pwd, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((res) => {
+            axios.post(Constants.API_PREFIX + 'perform_login', 'username=' + account + '&password=' + pwd, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }).then((res) => {
                 console.log(res);
                 if (res.status === 201) {
                     // success
@@ -24,24 +54,32 @@ let AcsApi = (function () {
                     resolve(res);
                     return;
                 }
-                reject();
+                reject(res);
             }).catch((error) => {
                 console.log('login error');
                 reject(error);
             })
         });
     };
+    AcsApi.prototype.logout = function () {
+        axios.post('logout').then((res) => {
+            if (res.status === 204) {
+                // remove user information
+                // change status
+            }
+        })
+    };
     AcsApi.prototype.getUsers = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/users';
-        if(page || size || sort){
+        let url = Constants.API_PREFIX + 'users';
+        if (page || size || sort) {
             url = url + '?';
-            if(page){
+            if (page) {
                 url = url + 'page=' + page;
             }
-            if(size){
+            if (size) {
                 url = url + 'size=' + size;
             }
-            if(sort){
+            if (sort) {
                 url = url + 'sort=' + sort;
             }
         }
@@ -50,17 +88,38 @@ let AcsApi = (function () {
             return res.data;
         })
     };
+    AcsApi.prototype.addUser = function (user) {
+        let url = Constants.API_PREFIX + 'users';
+        axios.post(url, user).then((res) => {
+            console.log(res);
+            return res.data;
+        })
+    };
+    AcsApi.prototype.updateUser = function (user) {
+        let url = Constants.API_PREFIX + 'users/' + user.username;
+        axios.put(url, user).then((res) => {
+            console.log(res);
+            return res.data;
+        })
+    };
+    AcsApi.prototype.delete = function (url) {
+        // let url = Constants.API_PREFIX + 'users';
+        axios.delete(url).then((res) => {
+            console.log(res);
+            return res.data;
+        })
+    };
     AcsApi.prototype.getAlarmPlans = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/alarmPlans';
-        if(page || size || sort){
+        let url = Constants.API_PREFIX + 'alarmPlans';
+        if (page || size || sort) {
             url = url + '?';
-            if(page){
+            if (page) {
                 url = url + 'page=' + page;
             }
-            if(size){
+            if (size) {
                 url = url + 'size=' + size;
             }
-            if(sort){
+            if (sort) {
                 url = url + 'sort=' + sort;
             }
         }
@@ -70,35 +129,45 @@ let AcsApi = (function () {
         })
     };
     AcsApi.prototype.getAlarmNotices = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/alarmNotices';
-        if(page || size || sort){
-            url = url + '?';
-            if(page){
-                url = url + 'page=' + page;
+        return new Promise((resolve, reject) => {
+            let url = Constants.API_PREFIX + 'alarmNotices';
+            if (page || size || sort) {
+                url = url + '?';
+                if (page) {
+                    url = url + 'page=' + page;
+                }
+                if (size) {
+                    url = url + 'size=' + size;
+                }
+                if (sort) {
+                    url = url + 'sort=' + sort;
+                }
             }
-            if(size){
-                url = url + 'size=' + size;
-            }
-            if(sort){
-                url = url + 'sort=' + sort;
-            }
-        }
-        axios.get(url).then((res) => {
-            console.log(res);
-            return res.data;
+            axios.get(url).then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('getAlarmNotices error');
+                console.log(error)
+                reject(error);
+            })
         })
     };
     AcsApi.prototype.getAnemoData = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/anemoData';
-        if(page || size || sort){
+        let url = Constants.API_PREFIX + 'anemoData';
+        if (page || size || sort) {
             url = url + '?';
-            if(page){
+            if (page) {
                 url = url + 'page=' + page;
             }
-            if(size){
+            if (size) {
                 url = url + 'size=' + size;
             }
-            if(sort){
+            if (sort) {
                 url = url + 'sort=' + sort;
             }
         }
@@ -108,35 +177,45 @@ let AcsApi = (function () {
         })
     };
     AcsApi.prototype.getUserLoginInfo = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/userLoginInfo';
-        if(page || size || sort){
-            url = url + '?';
-            if(page){
-                url = url + 'page=' + page;
+        return new Promise((resolve, reject) => {
+            let url = Constants.API_PREFIX + 'userLoginInfo';
+            if (page || size || sort) {
+                url = url + '?';
+                if (page) {
+                    url = url + 'page=' + page;
+                }
+                if (size) {
+                    url = url + 'size=' + size;
+                }
+                if (sort) {
+                    url = url + 'sort=' + sort;
+                }
             }
-            if(size){
-                url = url + 'size=' + size;
-            }
-            if(sort){
-                url = url + 'sort=' + sort;
-            }
-        }
-        axios.get(url).then((res) => {
-            console.log(res);
-            return res.data;
+            axios.get(url).then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('getUserLoginInfo error');
+                console.log(error)
+                reject(error);
+            })
         })
     };
     AcsApi.prototype.getAnemographs = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/anemographs';
-        if(page || size || sort){
+        let url = Constants.API_PREFIX + 'anemographs';
+        if (page || size || sort) {
             url = url + '?';
-            if(page){
+            if (page) {
                 url = url + 'page=' + page;
             }
-            if(size){
+            if (size) {
                 url = url + 'size=' + size;
             }
-            if(sort){
+            if (sort) {
                 url = url + 'sort=' + sort;
             }
         }
@@ -146,35 +225,45 @@ let AcsApi = (function () {
         })
     };
     AcsApi.prototype.getAlarmDevices = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/alarmDevices';
-        if(page || size || sort){
-            url = url + '?';
-            if(page){
-                url = url + 'page=' + page;
+        return new Promise((resolve, reject) => {
+            let url = Constants.API_PREFIX + 'alarmDevices';
+            if (page || size || sort) {
+                url = url + '?';
+                if (page) {
+                    url = url + 'page=' + page;
+                }
+                if (size) {
+                    url = url + 'size=' + size;
+                }
+                if (sort) {
+                    url = url + 'sort=' + sort;
+                }
             }
-            if(size){
-                url = url + 'size=' + size;
-            }
-            if(sort){
-                url = url + 'sort=' + sort;
-            }
-        }
-        axios.get(url).then((res) => {
-            console.log(res);
-            return res.data;
+            axios.get(url).then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('getAlarmDevices error');
+                console.log(error)
+                reject(error);
+            })
         })
     };
     AcsApi.prototype.getSystemSettings = function (page, size, sort) {
-        let url = 'http://localhost:8081/acs/systemSettings';
-        if(page || size || sort){
+        let url = Constants.API_PREFIX + 'systemSettings';
+        if (page || size || sort) {
             url = url + '?';
-            if(page){
+            if (page) {
                 url = url + 'page=' + page;
             }
-            if(size){
+            if (size) {
                 url = url + 'size=' + size;
             }
-            if(sort){
+            if (sort) {
                 url = url + 'sort=' + sort;
             }
         }
