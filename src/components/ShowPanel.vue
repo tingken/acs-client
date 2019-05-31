@@ -4,15 +4,15 @@
       <tr class="header">
         <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
       </tr>
-      <tr class="data" v-for="result in resultList" :key="result">
+      <tr class="data" v-for="(result, index) in resultList" :key="result">
         <td v-for="it in headers" :key="it">{{result[it]}}</td>
-        <td class="control">
+        <td v-if="editPath" class="control">
           <!-- <div class="control"> -->
           <span class="edit">
-            <a>编辑</a>
+            <a v-on:click="edit(index)">编辑</a>
           </span>
         </td>
-        <td class="control">
+        <td v-if="editPath" class="control">
           <span class="delete">
             <a>删除</a>
           </span>
@@ -24,12 +24,15 @@
 </template>
 
 <script>
+import router from '../router';
+
 export default {
   name: "ShowPanel",
   props: {
     headers: Array,
     headerMap: Object,
-    resultList: Array
+    resultList: Array,
+    editPath: String
   },
   mounted: function() {
     let tableHeight = document.getElementById("table_container").childNodes[0]
@@ -50,6 +53,11 @@ export default {
     }
     document.getElementById("table_container").style.height =
       tableHeight + "px";
+  },
+  methods: {
+    edit: function(index){
+      router.push(this.editPath+'/'+index)
+    }
   }
 };
 </script>

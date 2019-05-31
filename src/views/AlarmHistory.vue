@@ -39,7 +39,7 @@ export default {
   mounted: function(){
       this.updateAlarmNotices().then(() => {
           this.panelProp.resultList = this.alarmNotices._embedded.alarm_notice
-          console.log('data AlarmDevices updated')
+          console.log('data AlarmNotices updated')
       }).catch((error) => {
           console.error(error)
           router.push('/logout')

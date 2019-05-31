@@ -70,23 +70,7 @@ let AcsApi = (function () {
         })
     };
     AcsApi.prototype.getUsers = function (page, size, sort) {
-        let url = Constants.API_PREFIX + 'users';
-        if (page || size || sort) {
-            url = url + '?';
-            if (page) {
-                url = url + 'page=' + page;
-            }
-            if (size) {
-                url = url + 'size=' + size;
-            }
-            if (sort) {
-                url = url + 'sort=' + sort;
-            }
-        }
-        axios.get(url).then((res) => {
-            console.log(res);
-            return res.data;
-        })
+        return getResource('users', page, size, sort)
     };
     AcsApi.prototype.addUser = function (user) {
         let url = Constants.API_PREFIX + 'users';
@@ -110,52 +94,10 @@ let AcsApi = (function () {
         })
     };
     AcsApi.prototype.getAlarmPlans = function (page, size, sort) {
-        let url = Constants.API_PREFIX + 'alarmPlans';
-        if (page || size || sort) {
-            url = url + '?';
-            if (page) {
-                url = url + 'page=' + page;
-            }
-            if (size) {
-                url = url + 'size=' + size;
-            }
-            if (sort) {
-                url = url + 'sort=' + sort;
-            }
-        }
-        axios.get(url).then((res) => {
-            console.log(res);
-            return res.data;
-        })
+        return getResource('alarmPlans', page, size, sort)
     };
     AcsApi.prototype.getAlarmNotices = function (page, size, sort) {
-        return new Promise((resolve, reject) => {
-            let url = Constants.API_PREFIX + 'alarmNotices';
-            if (page || size || sort) {
-                url = url + '?';
-                if (page) {
-                    url = url + 'page=' + page;
-                }
-                if (size) {
-                    url = url + 'size=' + size;
-                }
-                if (sort) {
-                    url = url + 'sort=' + sort;
-                }
-            }
-            axios.get(url).then((res) => {
-                console.log(res);
-                if (res.status === 200) {
-                    resolve(res);
-                    return;
-                }
-                reject(res);
-            }).catch((error) => {
-                console.log('getAlarmNotices error');
-                console.log(error)
-                reject(error);
-            })
-        })
+        return getResource('alarmNotices', page, size, sort)
     };
     AcsApi.prototype.getAnemoData = function (page, size, sort) {
         let url = Constants.API_PREFIX + 'anemoData';

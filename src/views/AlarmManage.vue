@@ -3,13 +3,16 @@
     <showHead msg="告警设置">
       <div id="add">添加告警预案</div>
     </showHead>
-    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="planList"/>
+    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="planList" editPath="editPlan"/>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import Head from "@/components/Head.vue";
 import ShowPanel from "@/components/ShowPanel.vue";
+import store from '@/store'
+import router from '@/router'
 
 export default {
   name: "AlarmManage",
@@ -35,57 +38,23 @@ export default {
         alarmContent: "内容",
         status: "状态"
       },
-      planList: [
-        {
-          name: "大风预警",
-          threshold: "15",
-          volume: "25",
-          alarmDevices: "设备1,设备2,设备3,设备4,设备5,设备6,设备7",
-          alarmContent: "请注意！B区风速过高！",
-          status: "正常"
-        },
-        {
-          name: "大风预警",
-          threshold: "20.0",
-          volume: "50",
-          alarmDevices: "设备3,设备4,设备5,设备6,设备7",
-          alarmContent: "大风预警，请尽速撤离",
-          status: "维护"
-        },
-        {
-          name: "大风预警",
-          threshold: "25.5",
-          volume: "50",
-          alarmDevices: "设备1,设备2,设备3,设备4,设备5",
-          alarmContent: "大风预警，请尽速撤离",
-          status: "正常"
-        },
-        {
-          name: "大风预警",
-          threshold: "30",
-          volume: "80",
-          alarmDevices: "设备1,设备2,设备5,设备6,设备7",
-          alarmContent: "大风预警，请尽速撤离",
-          status: "正常"
-        },
-        {
-          name: "雷电预警",
-          threshold: "",
-          volume: "",
-          alarmDevices: "设备1,设备2,设备3,设备4,设备5,设备6,设备7",
-          alarmContent: "雷电预警，请尽速撤离",
-          status: "正常"
-        },
-        {
-          name: "冰雹预警",
-          threshold: "",
-          volume: "",
-          alarmDevices: "设备1,设备2,设备3,设备4,设备5,设备6,设备7",
-          alarmContent: "冰雹预警，请尽速撤离",
-          status: "正常"
-        }
-      ]
+      planList: []
     };
+  },
+  computed: {
+    ...mapGetters(['alarmPlans']),
+  },
+  mounted: function(){
+      this.updateAlarmPlans().then(() => {
+          this.planList = this.alarmPlans._embedded.alarm_plan
+          console.log('data AlarmPlans updated')
+      }).catch((error) => {
+          console.error(error)
+          router.push('/logout')
+      })
+  },
+  methods: {
+      ...mapActions(['updateAlarmPlans'])
   }
 };
 </script>

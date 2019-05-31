@@ -1,54 +1,34 @@
 <template>
   <div>
     <showHead msg="用户管理">
-      <div id="add"><img class="button_img_size" src="../assets/add.png">添加新账号</div>
+      <div id="add" v-on:click="addUser"><img class="button_img_size" src="../assets/add.png">添加新账号</div>
     </showHead>
-    <div id="table_container">
-      <table>
-        <tr class="header">
-          <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
-        </tr>
-        <tr class="data" v-for="user in userList" :key="user.username">
-          <td v-for="it in headers" :key="it">{{user[it]}}</td>
-          <td class="control">
-            <!-- <div class="control"> -->
-              <span class="edit">
-                <a>编辑</a>
-              </span>
-          </td>
-          <td class="control">
-              <span class="delete">
-                <a>删除</a>
-              </span>
-            <!-- </div> -->
-          </td>
-        </tr>
-      </table>
-    </div>
+    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="userList" editPath="editUser"/>
   </div>
 </template>
 
 <script>
-import Head from "@/components/Head.vue";
+import { mapGetters, mapActions } from 'vuex'
+import Head from '@/components/Head.vue'
+import ShowPanel from '@/components/ShowPanel.vue'
+import router from '../router';
 
 export default {
   name: 'UserManage',
   components: {
-    showHead: Head
+    showHead: Head,
+    showPanel: ShowPanel
   },
   data: function() {
     return {
       id: 'username',
       pathPrefix: '',
-      headers: ["username", "password"],
+      headers: ["name", "userDesc"],
       headerMap: {
-        username: "账号ID",
-        password: "密码"
+        name: "账号ID",
+        userDesc: "账号描述"
       },
-      userList: [
-        { username: "admin", password: "pwd1" },
-        { username: "user", password: "pwd2" }
-      ]
+      userList: []
     };
   },
   mounted: function(){
@@ -58,6 +38,24 @@ export default {
   updated: function(){
     console.log('table height: ' + document.getElementById('table_container').childNodes[0].offsetHeight)
     document.getElementById('table_container').style.height = document.getElementById('table_container').childNodes[0].offsetHeight + 'px';
+  },
+  computed: {
+    ...mapGetters(['users']),
+  },
+  mounted: function(){
+      this.updateUsers().then(() => {
+          this.userList = this.users._embedded.users
+          console.log('data Users updated')
+      }).catch((error) => {
+          console.error(error)
+          router.push('/logout')
+      })
+  },
+  methods: {
+      ...mapActions(['updateUsers']),
+      addUser: function(){
+        router.push('addUser')
+      }
   }
 };
 </script>
@@ -78,81 +76,5 @@ export default {
 .button_img_size {
   width: 24px;
   height: 24px;
-}
-#table_container {
-  left: 30px;
-  top: 110px;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  transform: translate(0, 0, -30px, -110px);
-  overflow-x:auto;
-}
-#table_container table {
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  min-width: 1500px;
-  position: absolute;
-  border-collapse: collapse;
-  background: rgba(255, 255, 255, 1);
-}
-.header {
-  /* width: 1500px; */
-  height: 50px;
-  background: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(226, 226, 226, 1);
-}
-.header th {
-  min-width: 100px;
-}
-th, td {
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-}
-tr.data:nth-child(odd) {background-color: #f2f2f2;}
-.data {
-  top: 0px;
-  /* width: 100%; */
-  height: 80px;
-  background: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(226, 226, 226, 1);
-}
-td.control {
-  top: 0px;
-  width: 100px;
-  height: 80px;
-}
-div.control {
-    top: 0px;
-    height: 100%;
-    /* position: absolute; */
-    background: rgba(226, 226, 226, 0.5);
-}
-.edit {
-  /* top: 33px;
-  right: 89px; */
-  /* position: absolute;
-  width: 29px;
-  height: 15px;
-  transform: translate(0, -50%); */
-  font-size: 14px;
-  font-family: MicrosoftYaHeiUILight;
-  font-weight: 300;
-  text-decoration: underline;
-  color: rgba(46, 100, 255, 1);
-}
-.delete {
-  /* top: 33px;
-  right: 23px; */
-  /* position: absolute;
-  width: 29px;
-  height: 15px;
-  transform: translate(0, -50%); */
-  font-size: 14px;
-  font-family: MicrosoftYaHeiUILight;
-  font-weight: 300;
-  text-decoration: underline;
-  color: rgba(228, 54, 54, 1);
 }
 </style>

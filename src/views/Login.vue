@@ -45,15 +45,14 @@ export default {
     login: function(){
       console.log('account:' + this.account + '; pwd:' + this.pwd);
       let api = new AcsApi();
-      // get token
+      // access login api
       api.formLogin(this.account, this.pwd).then((res) => {
-        // save token
+        // save user information
         this.afterLogin({username: res.data.username, roles: res.data.roles})
         // this.updateInLogged(true)
         // this.updateUsername(res.data.username)
         // this.updateRoles(res.data.roles)
         // redirect
-        api.getUsers();
         router.push('admin/alarmHistory');
       });
     }

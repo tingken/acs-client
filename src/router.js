@@ -11,7 +11,8 @@ import LoginHistory from './views/LoginHistory'
 import Operator from './views/Operator'
 import AlarmControl from './views/AlarmControl'
 import ChangePassword from './views/ChangePassword'
-import AddUser from './views/AddUser'
+import EditUser from './views/EditUser'
+import EditAlarm from './views/EditAlarm'
 
 Vue.use(Router)
 
@@ -61,7 +62,10 @@ export default new Router({
         { path: 'deviceManage', component: DeviceManage },
         { path: 'userManage', component: UserManage },
         { path: 'loginHistory', component: LoginHistory },
-        { path: 'addUser', component: AddUser }
+        { path: 'addUser', component: EditUser },
+        { path: 'editUser/:index', component: EditUser },
+        { path: 'addPlan', component: EditAlarm },
+        { path: 'editPlan/:index', component: EditAlarm }
       ],
       beforeEnter: (to, from, next) => {
         if (store.state.roles && !store.state.roles.includes('ROLE_ADMIN')) {

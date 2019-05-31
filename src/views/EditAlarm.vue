@@ -1,23 +1,44 @@
 <template>
   <div>
-    <showHead msg="添加账号"></showHead>
+    <showHead msg="编辑告警预案"></showHead>
     <div id="form_container">
       <form>
         <div class="note">类型</div>
         <div class="input_area">
-          <select name="type" v-model="role">
-            <option value="ROLE_USER">操作员</option>
-            <option value="ROLE_ADMIN">管理员</option>
+          <select name="type" v-model="type">
+            <option disabled value>选择告警类型</option>
+            <option value="ANEMO_ALARM">大风告警</option>
+            <option value="OTHER_ALARM">其它告警</option>
           </select>
         </div>
-        <div class="note">账号ID</div>
-        <div class="input_area">
-          <input v-model="user.name" type="text" placeholder="输入账号ID">
+        <div class="note" v-show="type==='OTHER_ALARM'">告警名称</div>
+        <div class="input_area" v-show="type==='OTHER_ALARM'">
+          <input v-model="alarmPlan.name" type="text" placeholder="输入告警名称">
         </div>
-        <div class="note">密码</div>
+        <div class="note">告警内容</div>
         <div class="input_area">
-          <input class="input-block" v-model="user.password" type="password" placeholder="请输入密码">
+          <input v-model="alarmPlan.alarmContent" type="text" placeholder="输入告警内容">
         </div>
+        <div class="note" v-show="type==='ANEMO_ALARM'">告警阈值</div>
+        <div class="input_area" v-show="type==='ANEMO_ALARM'">
+          <input v-model="alarmPlan.threshold" type="text" placeholder="输入告警阈值">
+        </div>
+        <div class="note">音量</div>
+        <div class="input_area">
+          <input
+            v-model.number="alarmPlan.volume"
+            type="number"
+            min="1"
+            max="56"
+            placeholder="输入告警音量"
+          >
+        </div>
+        <div class="note">播报范围</div>
+        <div class="input_area">
+          <!-- <input class="input-block" v-model="alarm.password" type="password" placeholder="请输入密码"> -->
+        </div>
+        <input type="button" onclick="alert('Hello World!')" value="保存">
+        <input type="button" onclick="alert('Hello World!')" value="取消">
       </form>
     </div>
   </div>
@@ -34,20 +55,20 @@ export default {
   },
   data: function() {
     return {
-      user: {},
-      role: ""
+      alarmPlan: {},
+      type: ""
     };
   },
   beforeRouteUpdate(to, from, next) {
     console.log("beforeRouteUpdate");
     if (to.path.includes("editUser")) {
       let index = parseInt(to.path.substring(to.path.lastIndexOf("/") + 1));
-      this.user = this.users._embedded.users[index];
-      console.log(this.user);
+      this.alarmPlan = this.alarmPlans._embedded.alarm_plan[index];
+      console.log(this.alarmPlan);
     }
   },
   computed: {
-    ...mapGetters(["users"])
+    ...mapGetters(["alarmPlans"])
     // role: function(authorities) {
     // //   console.log("this.user:");
     // //   console.log(this.user);
@@ -78,22 +99,14 @@ export default {
     let index = this.$route.params.index;
     console.log("mounted index: " + index);
     if (index) {
-      this.user = this.users._embedded.users[index];
-      console.log(this.user);
+      this.alarmPlan = this.alarmPlans._embedded.alarm_plan[index];
+      console.log(this.alarmPlan);
     }
   },
   watch: {
-    user: function(val) {
+    alarmPlan: function(val) {
       console.log("val.authorities.type:" + typeof val.authorities);
-      this.role =
-        val.authorities.findIndex((authority, index) => {
-          if (authority.role === "ROLE_ADMIN") {
-            return true;
-          }
-          return false;
-        }) >= 0
-          ? "ROLE_ADMIN"
-          : "ROLE_USER";
+      this.type = val.threshold ? "ANEMO_ALARM" : "OTHER_ALARM";
     }
   }
 };
@@ -125,6 +138,7 @@ export default {
 }
 input[type="text"],
 input[type="password"],
+input[type="number"],
 select,
 textarea {
   /* width: 100%; */

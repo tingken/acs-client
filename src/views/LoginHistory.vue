@@ -23,8 +23,8 @@ export default {
   data: function() {
     return {
       panelProp: {
-        headers: ['user', 'logDate'],
-        headerMap: {user: '登录账号', logDate: '登录时间'},
+        headers: ['username', 'logDate'],
+        headerMap: {username: '登录账号', logDate: '登录时间'},
         resultList: []//this.alarmNotices._embedded.alarm_notice
       }
     };

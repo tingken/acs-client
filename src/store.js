@@ -15,7 +15,9 @@ export default new Vuex.Store({
       groups: {},
       alarmDevices: {},
       alarmNotices: {},
-      userLoginInfo: {}
+      userLoginInfo: {},
+      alarmPlans: {},
+      users: {}
     }
   },
   getters: {
@@ -29,7 +31,9 @@ export default new Vuex.Store({
     roles: state => state.roles,
     alarmDevices: state => state.acsData.alarmDevices,
     alarmNotices: state => state.acsData.alarmNotices,
-    userLoginInfo: state => state.acsData.userLoginInfo
+    userLoginInfo: state => state.acsData.userLoginInfo,
+    alarmPlans: state => state.acsData.alarmPlans,
+    users: state => state.acsData.users
   },
   mutations: {
     updateInLogged(state, inLogged) {
@@ -78,6 +82,12 @@ export default new Vuex.Store({
     },
     updateUserLoginInfo(state, userLoginInfo){
       state.acsData.userLoginInfo = userLoginInfo
+    },
+    updateAlarmPlans(state, alarmPlans){
+      state.acsData.alarmPlans = alarmPlans
+    },
+    updateUsers(state, users){
+      state.acsData.users = users
     }
   },
   actions: {
@@ -105,6 +115,26 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         api.getUserLoginInfo().then((res) => {
           commit('updateUserLoginInfo', res.data)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    updateAlarmPlans({ commit }) {
+      return new Promise((resolve, reject) => {
+        api.getAlarmPlans().then((res) => {
+          commit('updateAlarmPlans', res.data)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    updateUsers({ commit }) {
+      return new Promise((resolve, reject) => {
+        api.getUsers().then((res) => {
+          commit('updateUsers', res.data)
           resolve()
         }).catch(error => {
           reject(error)
