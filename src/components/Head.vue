@@ -27,7 +27,6 @@ export default {
 }
 #head h1 {
   left: 31px;
-  width: 96px;
   height: 25px;
   position: absolute;
   font-size: 24px;
