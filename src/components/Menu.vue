@@ -11,7 +11,8 @@
     </tr>-->
     <tr v-for="(menuItem, index) in menuItems" :key="menuItem.title" v-on:click="choose(index)">
       <td v-on:click="selectMenuItem(index)" v-bind:class="{selected: index===currentIndex}">
-        <img class="left" v-bind:src="menuItem.img">
+        <img class="left" v-bind:src="menuItem.img" v-show="index!==currentIndex">
+        <img class="left" v-bind:src="menuItem.selectedImg" v-show="index===currentIndex">
         {{menuItem.title}}
       </td>
     </tr>
@@ -25,24 +26,23 @@ import AcsApi from "../modules/api";
 export default {
   name: "Menu",
   props: {
-    menuItemImgs: Array,
     menuItems: Array,
-    childRoutes: Array
+    childRoutes: Array,
+    initIndex: {
+      type: Number,
+      default: 0
+    }
   },
   data: function() {
     return {
-      currentIndex: 0
+      currentIndex: this.initIndex
     };
   },
   methods: {
     selectMenuItem: function(index) {
       console.log("username:" + this.username);
       if (index !== this.currentIndex) {
-        this.menuItems[this.currentIndex].img = this.menuItemImgs[
-          this.currentIndex
-        ].img;
         this.currentIndex = index;
-        this.menuItems[index].img = this.menuItemImgs[index].selectedImg;
         this.menuItemChanged(index);
       }
     },
@@ -57,6 +57,11 @@ export default {
         api.logout();
         router.push("/logout");
       }
+    }
+  },
+  watch: {
+    initIndex: function(val) {
+      this.currentIndex = val;
     }
   }
 };

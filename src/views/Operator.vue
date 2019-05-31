@@ -22,55 +22,54 @@ export default {
   data: function() {
     return {
       menu: {
-        menuItemImgs: [
+        menuItems: [
           {
             img: require("../assets/menu_item_alarm_manage.png"),
+            title: "告警控制",
             selectedImg: require("../assets/menu_item_alarm_manage_selected.png")
           },
           {
             img: require("../assets/menu_item_alarm_history.png"),
+            title: "告警历史",
             selectedImg: require("../assets/menu_item_alarm_history_selected.png")
           },
           {
-            img: require("../assets/menu_item_device_manage.png"),
-            selectedImg: require("../assets/menu_item_device_manage_selected.png")
-          },
-          {
             img: require("../assets/menu_item_user_manage.png"),
+            title: "修改密码",
             selectedImg: require("../assets/menu_item_user_manage_selected.png")
           },
           {
-            img: require("../assets/menu_item_login_history.png"),
-            selectedImg: require("../assets/menu_item_login_history_selected.png")
-          },
-          {
             img: require("../assets/menu_item_logout.png"),
+            title: "退出账号",
             selectedImg: require("../assets/menu_item_logout.png")
           }
         ],
-        menuItems: [
-          {
-            img: require("../assets/menu_item_alarm_manage.png"),
-            title: "告警控制"
-          },
-          {
-            img: require("../assets/menu_item_alarm_history_selected.png"),
-            title: "告警历史"
-          },
-          {
-            img: require("../assets/menu_item_user_manage.png"),
-            title: "修改密码"
-          },
-          { img: require("../assets/menu_item_logout.png"), title: "退出账号" }
+        childRoutes: [
+          "/operator/alarmControl",
+          "/operator/alarmHistory",
+          "/operator/changePassword"
         ],
-        childRoutes: ["alarmControl", "alarmHistory", "changePassword"]
+        initIndex: 0
       }
     };
   },
   computed: {
-    ...mapGetters(["username"]),
-    selected: function(index) {
-      return index === this.currentIndex;
+    ...mapGetters(["username"])
+  },
+  // the following method works to update the menu focus while browser back or next
+  beforeRouteUpdate(to, from, next) {
+    let index = this.menu.childRoutes.indexOf(to.fullPath);
+    if (index >= 0 && this.menu.initIndex !== index) {
+      this.menu.initIndex = index;
+    }
+    next();
+  },
+  // the following method works to update the menu focus while browser refresh
+  mounted: function() {
+    console.log("this.$route.fullPath: " + this.$route.fullPath);
+    let index = this.menu.childRoutes.indexOf(this.$route.fullPath);
+    if (index >= 0 && this.menu.initIndex !== index) {
+      this.menu.initIndex = index;
     }
   }
 };
