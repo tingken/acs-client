@@ -9,7 +9,7 @@
         <td v-if="editPath" class="control">
           <!-- <div class="control"> -->
           <span class="edit">
-            <a v-on:click="edit(index)">编辑</a>
+            <router-link :to="editPath+'/'+index">编辑</router-link>
           </span>
         </td>
         <td v-if="editPath" class="control">

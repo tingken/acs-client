@@ -72,7 +72,7 @@ export default {
   },
   // the following method works to update the menu focus while browser back or next
   beforeRouteUpdate(to, from, next) {
-    let index = this.menu.childRoutes.indexOf(to.fullPath);
+    let index = this.menu.childRoutes.findIndex((val) => {return to.fullPath.startsWith(val)});
     if (index >= 0 && this.menu.initIndex !== index) {
       this.menu.initIndex = index;
     }
@@ -81,7 +81,7 @@ export default {
   // the following method works to update the menu focus while browser refresh
   mounted: function() {
     console.log("this.$route.fullPath: " + this.$route.fullPath);
-    let index = this.menu.childRoutes.indexOf(this.$route.fullPath);
+    let index = this.menu.childRoutes.findIndex((val) => {return this.$route.fullPath.startsWith(val)});
     if (index >= 0 && this.menu.initIndex !== index) {
       this.menu.initIndex = index;
     }

@@ -1,6 +1,7 @@
 <template>
   <div>
-    <showHead msg="编辑告警预案"></showHead>
+    <showHead msg="编辑告警预案" v-if="alarmPlan._links"></showHead>
+    <showHead msg="添加告警预案" v-else></showHead>
     <div id="form_container">
       <form>
         <div class="note">类型</div>
@@ -35,10 +36,15 @@
         </div>
         <div class="note">播报范围</div>
         <div class="input_area">
-          <!-- <input class="input-block" v-model="alarm.password" type="password" placeholder="请输入密码"> -->
+          <span v-for="(device, index) in deviceList" :key="index">
+            <span class="device_name"><input type="checkbox" v-bind:value="index" v-model="choosedDeviceIndices">
+            <font>{{device.name}}</font></span>
+          </span>
         </div>
-        <input type="button" onclick="alert('Hello World!')" value="保存">
+        <span style="float:left">
+        <input type="button" v-on:click="save" value="保存">
         <input type="button" onclick="alert('Hello World!')" value="取消">
+        </span>
       </form>
     </div>
   </div>
@@ -47,16 +53,19 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import Head from "@/components/Head.vue";
+import AcsApi from '@/modules/api'
 
 export default {
-  name: "EditUser",
+  name: "EditPlan",
   components: {
     showHead: Head
   },
   data: function() {
     return {
       alarmPlan: {},
-      type: ""
+      type: "",
+      deviceList: null,
+      choosedDeviceIndices: []
     };
   },
   beforeRouteUpdate(to, from, next) {
@@ -68,7 +77,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["alarmPlans"])
+    ...mapGetters(["alarmPlans", "alarmDevices"])
     // role: function(authorities) {
     // //   console.log("this.user:");
     // //   console.log(this.user);
@@ -102,11 +111,41 @@ export default {
       this.alarmPlan = this.alarmPlans._embedded.alarm_plan[index];
       console.log(this.alarmPlan);
     }
+    this.updateAlarmDevices()
+      .then(() => {
+        this.deviceList = this.alarmDevices._embedded.alarm_device;
+        console.log("data AlarmDevices updated");
+      })
+      .catch(error => {
+        console.error(error);
+      });
   },
   watch: {
     alarmPlan: function(val) {
       console.log("val.authorities.type:" + typeof val.authorities);
       this.type = val.threshold ? "ANEMO_ALARM" : "OTHER_ALARM";
+    }
+  },
+  methods: {
+    ...mapActions(["updateAlarmDevices"]),
+    save: function(){
+        let api = new AcsApi()
+      if(this.alarmPlan._links){
+        // update
+        api.updateResource(alarmPlan._links.self.href, this.alarmPlan).then(() => {
+          alert('更新成功')
+          this.$router.go(-1)
+        }).catch((error) => {
+          alert('更新失败')
+        })
+      }else{
+        // add
+        api.addAlarmPlan(this.alarmPlan).then(() => {
+          alert('添加成功')
+        }).catch((error) => {
+          alert('添加失败')
+        })
+      }
     }
   }
 };
@@ -130,8 +169,8 @@ export default {
 .input_area {
   /* padding: 0 0 0 23px; */
   margin-bottom: 50px;
-  /* width: 608px;
-  height: 60px;
+  width: 680px;
+  /* height: 60px;
   background: rgba(255, 255, 255, 1);
   border: 1px solid rgba(226, 226, 226, 1);
   border-radius: 6px; */
@@ -153,5 +192,11 @@ textarea {
   border: 1px solid rgba(226, 226, 226, 1);
   border-radius: 6px;
   resize: vertical;
+}
+.device_name{
+  min-width: 108px;
+  margin-right: 50px;
+  display: block;
+  float: left;
 }
 </style>

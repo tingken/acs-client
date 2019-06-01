@@ -23,8 +23,8 @@ export default {
   data: function() {
     return {
       panelProp: {
-        headers: ['value', 'threshold', 'deviceNames', 'noticeContent', 'noticeTime'],
-        headerMap: {value: '检测值', threshold: '阈值', deviceNames: '范围', noticeContent: '内容', noticeTime: '时间'},
+        headers: ['value', 'threshold', 'range', 'noticeContent', 'noticeTime'],
+        headerMap: {value: '检测值', threshold: '阈值', range: '范围', noticeContent: '内容', noticeTime: '时间'},
         resultList: []//this.alarmNotices._embedded.alarm_notice
       }
     };

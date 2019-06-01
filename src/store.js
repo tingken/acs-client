@@ -30,7 +30,13 @@ export default new Vuex.Store({
     username: state => state.username,
     roles: state => state.roles,
     alarmDevices: state => state.acsData.alarmDevices,
-    alarmNotices: state => state.acsData.alarmNotices,
+    alarmNotices: state => {
+      let alarmNotices = state.acsData.alarmNotices
+      alarmNotices._embedded.alarm_notice.forEach((element) => {
+        element.range = element.deviceNames.join()
+      })
+      return alarmNotices
+    },
     userLoginInfo: state => state.acsData.userLoginInfo,
     alarmPlans: state => state.acsData.alarmPlans,
     users: state => state.acsData.users
@@ -77,16 +83,16 @@ export default new Vuex.Store({
     updateAlarmDevices(state, alarmDevices) {
       state.acsData.alarmDevices = alarmDevices
     },
-    updateAlarmNotices(state, alarmNotices){
+    updateAlarmNotices(state, alarmNotices) {
       state.acsData.alarmNotices = alarmNotices
     },
-    updateUserLoginInfo(state, userLoginInfo){
+    updateUserLoginInfo(state, userLoginInfo) {
       state.acsData.userLoginInfo = userLoginInfo
     },
-    updateAlarmPlans(state, alarmPlans){
+    updateAlarmPlans(state, alarmPlans) {
       state.acsData.alarmPlans = alarmPlans
     },
-    updateUsers(state, users){
+    updateUsers(state, users) {
       state.acsData.users = users
     }
   },

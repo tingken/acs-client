@@ -33,6 +33,49 @@ let AcsApi = (function () {
             })
         })
     };
+    let addResource = function (resource, obj) {
+        return new Promise((resolve, reject) => {
+            let url = Constants.API_PREFIX + resource;
+            axios.post(url, obj, { headers: { 'Content-Type': 'application/json' } }).then((res) => {
+                console.log(res);
+                if (res.status === 201) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('add ' + resource + ' error');
+                console.log(error)
+                reject(error);
+            })
+        })
+    };
+    AcsApi.prototype.updateResource = function (url, resource) {
+        return new Promise((resolve, reject) => {
+            axios.put(url, resource).then((res) => {
+                if (res.status == 204) {
+                    resolve(res)
+                    return
+                }
+                reject(res)
+            }).catch((error) => {
+                reject(error)
+            })
+        })
+    }
+    AcsApi.prototype.deleteResource = function(url){
+        return new Promise((resolve, reject) => {
+            axios.delete(url).then((res) => {
+                if(res.status == 204){
+                    resolve(res)
+                    return
+                }
+                reject(res)
+            }).catch((error) => {
+                reject(error)
+            })
+        })
+    }
     AcsApi.prototype.login = function (account, pwd) {
         axios.post(Constants.API_PREFIX + 'api/v1/user/login', '{"userName":"' + account + '","password":"' + pwd + '"}').then((res) => {
             if (res.status === 201) {
@@ -96,6 +139,9 @@ let AcsApi = (function () {
     AcsApi.prototype.getAlarmPlans = function (page, size, sort) {
         return getResource('alarmPlans', page, size, sort)
     };
+    AcsApi.prototype.addAlarmPlan = function(obj){
+        return addResource('alarmPlans', obj)
+    }
     AcsApi.prototype.getAlarmNotices = function (page, size, sort) {
         return getResource('alarmNotices', page, size, sort)
     };

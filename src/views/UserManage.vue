@@ -3,7 +3,7 @@
     <showHead msg="用户管理">
       <div id="add" v-on:click="addUser"><img class="button_img_size" src="../assets/add.png">添加新账号</div>
     </showHead>
-    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="userList" editPath="editUser"/>
+    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="userList" editPath="userManage/editUser"/>
   </div>
 </template>
 
@@ -31,14 +31,6 @@ export default {
       userList: []
     };
   },
-  mounted: function(){
-    console.log('table height: ' + document.getElementById('table_container').childNodes[0].offsetHeight)
-    document.getElementById('table_container').style.height = document.getElementById('table_container').childNodes[0].offsetHeight + 'px';
-  },
-  updated: function(){
-    console.log('table height: ' + document.getElementById('table_container').childNodes[0].offsetHeight)
-    document.getElementById('table_container').style.height = document.getElementById('table_container').childNodes[0].offsetHeight + 'px';
-  },
   computed: {
     ...mapGetters(['users']),
   },
@@ -54,7 +46,7 @@ export default {
   methods: {
       ...mapActions(['updateUsers']),
       addUser: function(){
-        router.push('addUser')
+        router.push('userManage/addUser')
       }
   }
 };

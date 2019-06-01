@@ -12,7 +12,8 @@ import Operator from './views/Operator'
 import AlarmControl from './views/AlarmControl'
 import ChangePassword from './views/ChangePassword'
 import EditUser from './views/EditUser'
-import EditAlarm from './views/EditAlarm'
+import EditPlan from './views/EditPlan'
+import Tank from './views/Tank'
 
 Vue.use(Router)
 
@@ -58,14 +59,22 @@ export default new Router({
       children: [
         { path: '', redirect: 'alarmHistory' },
         { path: 'alarmHistory', component: AlarmHistory },
-        { path: 'alarmManage', component: AlarmManage },
+        {
+          path: 'alarmManage', component: Tank, children: [
+            { path: '', component: AlarmManage },
+            { path: 'addPlan', component: EditPlan },
+            { path: 'editPlan/:index', component: EditPlan }
+          ]
+        },
         { path: 'deviceManage', component: DeviceManage },
-        { path: 'userManage', component: UserManage },
-        { path: 'loginHistory', component: LoginHistory },
-        { path: 'addUser', component: EditUser },
-        { path: 'editUser/:index', component: EditUser },
-        { path: 'addPlan', component: EditAlarm },
-        { path: 'editPlan/:index', component: EditAlarm }
+        {
+          path: 'userManage', component: Tank, children: [
+            { path: '', component: UserManage },
+            { path: 'addUser', component: EditUser },
+            { path: 'editUser/:index', component: EditUser }
+          ]
+        },
+        { path: 'loginHistory', component: LoginHistory }
       ],
       beforeEnter: (to, from, next) => {
         if (store.state.roles && !store.state.roles.includes('ROLE_ADMIN')) {
