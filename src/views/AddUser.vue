@@ -18,6 +18,10 @@
         <div class="input_area">
           <input class="input-block" v-model="user.password" type="password" placeholder="请输入密码">
         </div>
+        <span style="float:left">
+          <input type="button" v-on:click="save" value="保存">
+          <input type="button" class="cancel" onclick="alert('Hello World!')" value="取消">
+        </span>
       </form>
     </div>
   </div>
@@ -26,6 +30,7 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import Head from "@/components/Head.vue";
+import AcsApi from "@/modules/api";
 
 export default {
   name: "EditUser",
@@ -95,6 +100,12 @@ export default {
           ? "ROLE_ADMIN"
           : "ROLE_USER";
     }
+  },
+  methods: {
+    save: function(){
+      // check input
+      // access api
+    }
   }
 };
 </script>
@@ -139,5 +150,19 @@ textarea {
   border: 1px solid rgba(226, 226, 226, 1);
   border-radius: 6px;
   resize: vertical;
+}
+input[type="button"] {
+  width: 120px;
+  height: 60px;
+  background: rgba(67, 115, 255, 1);
+  border-radius: 6px;
+  margin-right: 25px;
+}
+input[type="button"].cancel {
+  width: 120px;
+  height: 60px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid rgba(226, 226, 226, 1);
+  border-radius: 6px;
 }
 </style>

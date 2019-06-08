@@ -54,6 +54,8 @@ export default {
         // this.updateRoles(res.data.roles)
         // redirect
         router.push('admin/alarmHistory');
+      }).catch((error) => {
+        alert('账号和密码不匹配')
       });
     }
   }

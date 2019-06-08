@@ -17,8 +17,10 @@ export default new Vuex.Store({
       alarmNotices: {},
       userLoginInfo: {},
       alarmPlans: {},
-      users: {}
-    }
+      users: {},
+      alarmPlansOfOtherType: {}
+    },
+    common: {}
   },
   getters: {
     inLogged: state => {
@@ -32,14 +34,17 @@ export default new Vuex.Store({
     alarmDevices: state => state.acsData.alarmDevices,
     alarmNotices: state => {
       let alarmNotices = state.acsData.alarmNotices
-      alarmNotices._embedded.alarm_notice.forEach((element) => {
-        element.range = element.deviceNames.join()
-      })
+      if (alarmNotices._embedded && alarmNotices._embedded.alarm_notice) {
+        alarmNotices._embedded.alarm_notice.forEach((element) => {
+          element.range = element.deviceNames.join()
+        })
+      }
       return alarmNotices
     },
     userLoginInfo: state => state.acsData.userLoginInfo,
     alarmPlans: state => state.acsData.alarmPlans,
-    users: state => state.acsData.users
+    users: state => state.acsData.users,
+    alarmPlansOfOtherType: state => state.acsData.alarmPlansOfOtherType
   },
   mutations: {
     updateInLogged(state, inLogged) {
@@ -94,6 +99,9 @@ export default new Vuex.Store({
     },
     updateUsers(state, users) {
       state.acsData.users = users
+    },
+    updateAlarmPlansOfOtherType(state, alarmPlansOfOtherType) {
+      state.acsData.alarmPlansOfOtherType = alarmPlansOfOtherType
     }
   },
   actions: {
@@ -141,6 +149,16 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         api.getUsers().then((res) => {
           commit('updateUsers', res.data)
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+    updateAlarmPlansOfOtherType({ commit }) {
+      return new Promise((resolve, reject) => {
+        api.getAlarmPlansOfOtherType().then((res) => {
+          commit('updateAlarmPlansOfOtherType', res.data)
           resolve()
         }).catch(error => {
           reject(error)

@@ -14,6 +14,7 @@ import ChangePassword from './views/ChangePassword'
 import EditUser from './views/EditUser'
 import EditPlan from './views/EditPlan'
 import Tank from './views/Tank'
+import EditDevice from './views/EditDevice'
 
 Vue.use(Router)
 
@@ -66,7 +67,13 @@ export default new Router({
             { path: 'editPlan/:index', component: EditPlan }
           ]
         },
-        { path: 'deviceManage', component: DeviceManage },
+        {
+          path: 'deviceManage', component: Tank, children: [
+            { path: '', component: DeviceManage },
+            { path: 'addDevice', component: EditDevice },
+            { path: 'editDevice/:index', component: EditDevice }
+          ]
+        },
         {
           path: 'userManage', component: Tank, children: [
             { path: '', component: UserManage },

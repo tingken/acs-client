@@ -37,13 +37,15 @@
         <div class="note">播报范围</div>
         <div class="input_area">
           <span v-for="(device, index) in deviceList" :key="index">
-            <span class="device_name"><input type="checkbox" v-bind:value="index" v-model="choosedDeviceIndices">
-            <font>{{device.name}}</font></span>
+            <span class="device_name">
+              <input type="checkbox" v-bind:value="index" v-model="choosedDeviceIndices">
+              <font>{{device.name}}</font>
+            </span>
           </span>
         </div>
         <span style="float:left">
-        <input type="button" v-on:click="save" value="保存">
-        <input type="button" onclick="alert('Hello World!')" value="取消">
+          <input type="button" v-on:click="save" value="保存">
+          <input type="button" class="cancel" onclick="alert('Hello World!')" value="取消">
         </span>
       </form>
     </div>
@@ -53,7 +55,7 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import Head from "@/components/Head.vue";
-import AcsApi from '@/modules/api'
+import AcsApi from "@/modules/api";
 
 export default {
   name: "EditPlan",
@@ -62,6 +64,7 @@ export default {
   },
   data: function() {
     return {
+      api: new AcsApi(),
       alarmPlan: {},
       type: "",
       deviceList: null,
@@ -75,34 +78,10 @@ export default {
       this.alarmPlan = this.alarmPlans._embedded.alarm_plan[index];
       console.log(this.alarmPlan);
     }
+    next();
   },
   computed: {
     ...mapGetters(["alarmPlans", "alarmDevices"])
-    // role: function(authorities) {
-    // //   console.log("this.user:");
-    // //   console.log(this.user);
-    // console.log('authorities:')
-    // console.log(authorities)
-    //   if (authorities) {
-    //     // for (authority in this.user.authorities) {
-    //     //   console.log(authority);
-    //     //   if (authority.role === "ROLE_ADMIN") {
-    //     //     return 1;
-    //     //   }
-    //     // }
-    //     if (
-    //       authorities.findIndex((authority, index) => {
-    //         if (authority.role === "ROLE_ADMIN") {
-    //           return true;
-    //         }
-    //         return false;
-    //       }) >= 0
-    //     ) {
-    //       return 1;
-    //     }
-    //     return 0;
-    //   }
-    // }
   },
   mounted: function() {
     let index = this.$route.params.index;
@@ -110,41 +89,105 @@ export default {
     if (index) {
       this.alarmPlan = this.alarmPlans._embedded.alarm_plan[index];
       console.log(this.alarmPlan);
+      this.type = this.alarmPlan.threshold ? "ANEMO_ALARM" : "OTHER_ALARM";
     }
     this.updateAlarmDevices()
       .then(() => {
         this.deviceList = this.alarmDevices._embedded.alarm_device;
         console.log("data AlarmDevices updated");
+        // let api = new AcsApi();
+        this.api.get(this.alarmPlan._links.alarmDevices.href).then(res => {
+          let linkedDevices = res.data._embedded.alarm_device;
+          for (let i in this.deviceList) {
+            if (
+              linkedDevices.find(device => {
+                return (
+                  device._links.self.href ===
+                  this.deviceList[i]._links.self.href
+                );
+              })
+            ) {
+              this.choosedDeviceIndices.push(i);
+            }
+          }
+        });
       })
       .catch(error => {
         console.error(error);
+        console.log(typeof error);
+        if (
+          error.status === 401 ||
+          (error.response && error.response.status === 401)
+        ) {
+          this.$router.push("/logout");
+        }
       });
   },
   watch: {
-    alarmPlan: function(val) {
-      console.log("val.authorities.type:" + typeof val.authorities);
-      this.type = val.threshold ? "ANEMO_ALARM" : "OTHER_ALARM";
-    }
+    // alarmPlan: function(val) {
+    //   this.type = val.threshold ? "ANEMO_ALARM" : "OTHER_ALARM";
+    // }
   },
   methods: {
     ...mapActions(["updateAlarmDevices"]),
-    save: function(){
-        let api = new AcsApi()
-      if(this.alarmPlan._links){
+    save: function() {
+      if (!this.type) {
+        alert("请选择类型");
+        return;
+      }
+      if (this.type === "OTHER_ALARM") {
+        this.alarmPlan.threshold = null;
+      } else if (this.alarmPlan.name.trim().length === 0) {
+        alert("请输入告警名称");
+        return;
+      }
+      let api = new AcsApi();
+      if (this.alarmPlan._links) {
+        this.alarmPlan.alarmDevices = null;
+        // this.alarmPlan._links = {};
         // update
-        api.updateResource(alarmPlan._links.self.href, this.alarmPlan).then(() => {
-          alert('更新成功')
-          this.$router.go(-1)
-        }).catch((error) => {
-          alert('更新失败')
-        })
-      }else{
+        api
+          .updateResource(this.alarmPlan._links.self.href, this.alarmPlan)
+          .then(() => {
+            let links = "";
+            for (let i in this.choosedDeviceIndices) {
+              links +=
+                this.deviceList[this.choosedDeviceIndices[i]]._links.self.href +
+                "\n";
+            }
+            api
+              .updateLinks(this.alarmPlan._links.alarmDevices.href, links)
+              .then(() => {
+                alert("更新成功");
+                this.$router.go(-1);
+              });
+          })
+          .catch(error => {
+            alert("更新失败");
+          });
+      } else {
         // add
-        api.addAlarmPlan(this.alarmPlan).then(() => {
-          alert('添加成功')
-        }).catch((error) => {
-          alert('添加失败')
-        })
+        console.log(this.alarmPlan);
+        api
+          .addAlarmPlan(this.alarmPlan)
+          .then(res => {
+            console.log(
+              "res.data._links.self.href: " + res.data._links.self.href
+            );
+            let links = "";
+            for (let i in this.choosedDeviceIndices) {
+              links +=
+                this.deviceList[this.choosedDeviceIndices[i]]._links.self.href +
+                "\n";
+            }
+            console.log(links);
+            api.addLinks(res.data._links.alarmDevices.href, links).then(() => {
+              alert("添加成功");
+            });
+          })
+          .catch(error => {
+            alert("添加失败");
+          });
       }
     }
   }
@@ -193,7 +236,21 @@ textarea {
   border-radius: 6px;
   resize: vertical;
 }
-.device_name{
+input[type="button"] {
+  width: 120px;
+  height: 60px;
+  background: rgba(67, 115, 255, 1);
+  border-radius: 6px;
+  margin-right: 25px;
+}
+input[type="button"].cancel {
+  width: 120px;
+  height: 60px;
+  background: rgba(255, 255, 255, 1);
+  border: 1px solid rgba(226, 226, 226, 1);
+  border-radius: 6px;
+}
+.device_name {
   min-width: 108px;
   margin-right: 50px;
   display: block;
