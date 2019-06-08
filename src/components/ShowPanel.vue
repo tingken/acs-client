@@ -9,12 +9,12 @@
         <td v-if="editPath" class="control">
           <!-- <div class="control"> -->
           <span class="edit">
-            <router-link :to="editPath+'/'+index">编辑</router-link>
+            <router-link :to="editPath+'/'+index" class="edit_link">编辑</router-link>
           </span>
         </td>
         <td v-if="editPath" class="control">
           <span class="delete">
-            <a>删除</a>
+            <a class="remove_link">删除</a>
           </span>
           <!-- </div> -->
         </td>
@@ -140,5 +140,23 @@ div.control {
   font-weight: 300;
   text-decoration: underline;
   color: rgba(228, 54, 54, 1);
+}
+.edit_link{
+  background-image: url('../assets/edit.png');
+  /* background-attachment: fixed; */
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  padding-left: 27px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+.remove_link{
+  background-image: url('../assets/remove.png');
+  /* background-attachment: fixed; */
+  background-position: 0px 0px;
+  background-repeat: no-repeat;
+  padding-left: 27px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
 </style>
