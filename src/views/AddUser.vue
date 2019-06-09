@@ -102,9 +102,27 @@ export default {
     }
   },
   methods: {
-    save: function(){
+    save: function() {
       // check input
+      if (this.user.name.trim().length === 0) {
+        alert("用户名不能为空");
+        return;
+      }
+      if (this.user.password.trim().length === 0) {
+        alert("密码不能为空");
+        return;
+      }
       // access api
+      let api = new AcsApi();
+      console.log(this.user);
+      api
+        .addUser(this.user.name, this.user.userDesc, this.user.password, this.role)
+        .then(() => {
+          alert("添加成功");
+        })
+        .catch(error => {
+          alert("添加失败");
+        });
     }
   }
 };
