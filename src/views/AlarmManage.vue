@@ -10,6 +10,7 @@
       v-bind:headerMap="headerMap"
       v-bind:resultList="planList"
       editPath="alarmManage/editPlan"
+      resourceName="alarmPlans"
     />
   </div>
 </template>

@@ -1,10 +1,11 @@
 <template>
-  <div id="table_container">
-    <table>
+  <div id="table_container" v-on:scroll.passive="onScroll" ref="tableContainer">
+    <!-- <div>下拉刷新</div> -->
+    <table ref="table">
       <tr class="header">
         <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
       </tr>
-      <tr class="data" v-for="(result, index) in resultList" :key="result">
+      <tr class="data" v-for="(result, index) in innerResultList" :key="result">
         <td v-for="it in headers" :key="it">{{result[it]}}</td>
         <td v-if="editPath" class="control">
           <!-- <div class="control"> -->
@@ -14,7 +15,7 @@
         </td>
         <td v-if="editPath" class="control">
           <span class="delete">
-            <a class="remove_link">删除</a>
+            <a class="remove_link" v-on:click="remove(index)">删除</a>
           </span>
           <!-- </div> -->
         </td>
@@ -24,7 +25,9 @@
 </template>
 
 <script>
-import router from '../router';
+import router from "../router";
+import { mapGetters, mapActions } from "vuex";
+import AcsApi from "@/modules/api";
 
 export default {
   name: "ShowPanel",
@@ -32,11 +35,16 @@ export default {
     headers: Array,
     headerMap: Object,
     resultList: Array,
-    editPath: String
+    editPath: String,
+    resourceName: String
+  },
+  data: function() {
+    return {
+      innerResultList: this.resultList
+    };
   },
   mounted: function() {
-    let tableHeight = document.getElementById("table_container").childNodes[0]
-      .offsetHeight;
+    let tableHeight = this.$refs.table.offsetHeight;
     console.log("table height: " + tableHeight);
     if (tableHeight > 900) {
       tableHeight = 900;
@@ -45,8 +53,7 @@ export default {
       tableHeight + "px";
   },
   updated: function() {
-    let tableHeight = document.getElementById("table_container").childNodes[0]
-      .offsetHeight;
+    let tableHeight = this.$refs.table.offsetHeight;
     console.log("table height: " + tableHeight);
     if (tableHeight > 900) {
       tableHeight = 900;
@@ -55,9 +62,40 @@ export default {
       tableHeight + "px";
   },
   methods: {
-    edit: function(index){
-      router.push(this.editPath+'/'+index)
+    ...mapActions(['nextPage', 'prevPage']),
+    edit: function(index) {
+      router.push(this.editPath + "/" + index);
+    },
+    remove: function(index) {
+      let api = new AcsApi();
+      api
+        .deleteResource(this.innerResultList[index]._links.self.href)
+        .then(res => {
+          alert("删除成功");
+          this.innerResultList.splice(index, 1);
+        });
+    },
+    onScroll: function(){
+      console.log('this.$refs.tableContainer.scrollTop + this.$refs.tableContainer.offsetHeight: ' + (this.$refs.tableContainer.scrollTop + this.$refs.tableContainer.offsetHeight))
+      console.log('this.$refs.tableContainer.scrollHeight: ' + this.$refs.tableContainer.scrollHeight)
+      if(this.$refs.tableContainer.scrollTop + this.$refs.tableContainer.offsetHeight >= this.$refs.tableContainer.scrollHeight){
+        this.nextPage(this.resourceName).then(() => {
+          console.log(this.partOfAcsData(this.resourceName))
+          console.log(this.$refs.tableContainer)
+          this.$refs.tableContainer.scrollTop = 0
+          this.innerResultList = this.partOfAcsData(this.resourceName)
+        })
+      }
     }
+  },
+  watch: {
+    resultList: function(val) {
+      console.log('innerResultList updated')
+      this.innerResultList = val;
+    }
+  },
+  computed: {
+    ...mapGetters(['partOfAcsData'])
   }
 };
 </script>
@@ -73,10 +111,10 @@ export default {
   overflow-x: auto;
 }
 #table_container table {
-  top: 0px;
-  left: 0px;
+  /* top: 0px;
+  left: 0px; */
   min-width: 1500px;
-  position: absolute;
+  /* position: absolute; */
   border-collapse: collapse;
   background: rgba(255, 255, 255, 1);
 }
@@ -141,8 +179,8 @@ div.control {
   text-decoration: underline;
   color: rgba(228, 54, 54, 1);
 }
-.edit_link{
-  background-image: url('../assets/edit.png');
+.edit_link {
+  background-image: url("../assets/edit.png");
   /* background-attachment: fixed; */
   background-position: 0px 0px;
   background-repeat: no-repeat;
@@ -150,8 +188,8 @@ div.control {
   padding-top: 3px;
   padding-bottom: 3px;
 }
-.remove_link{
-  background-image: url('../assets/remove.png');
+.remove_link {
+  background-image: url("../assets/remove.png");
   /* background-attachment: fixed; */
   background-position: 0px 0px;
   background-repeat: no-repeat;

@@ -25,7 +25,8 @@ export default {
       panelProp: {
         headers: ['value', 'threshold', 'range', 'noticeContent', 'noticeTime'],
         headerMap: {value: '检测值', threshold: '阈值', range: '范围', noticeContent: '内容', noticeTime: '时间'},
-        resultList: []//this.alarmNotices._embedded.alarm_notice
+        resultList: [],//this.alarmNotices._embedded.alarm_notice
+        resourceName: 'alarmNotices'
       }
     };
   },
@@ -47,6 +48,12 @@ export default {
   },
   methods: {
       ...mapActions(['updateAlarmNotices'])
+  },
+  watch: {
+    // alarmNotices: function(val){
+    //   console.log('panelProp.resultList updated')
+    //   this.panelProp.resultList = val._embedded.alarm_notice
+    // }
   }
 };
 </script>

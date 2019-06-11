@@ -25,7 +25,8 @@ export default {
       panelProp: {
         headers: ['username', 'logDate'],
         headerMap: {username: '登录账号', logDate: '登录时间'},
-        resultList: []//this.alarmNotices._embedded.alarm_notice
+        resultList: [],//this.alarmNotices._embedded.alarm_notice
+        resourceName: 'userLoginInfo'
       }
     };
   },

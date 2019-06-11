@@ -40,7 +40,9 @@ export default {
           ip: "IP",
           status: "状态"
         },
-        resultList: [] //this.alarmDevices._embedded.alarm_device
+        resultList: [], //this.alarmDevices._embedded.alarm_device
+        editPath: 'deviceManage/editDevice',
+        resourceName: 'alarmDevices'
       }
     };
   },

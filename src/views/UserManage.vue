@@ -3,7 +3,7 @@
     <showHead msg="用户管理">
       <div id="add" v-on:click="addUser"><img class="button_img_size" src="../assets/add.png">添加新账号</div>
     </showHead>
-    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="userList" editPath="userManage/editUser"/>
+    <showPanel v-bind:headers="headers" v-bind:headerMap="headerMap" v-bind:resultList="userList" editPath="userManage/editUser" resourceName="users"/>
   </div>
 </template>
 

@@ -6,20 +6,29 @@ Vue.use(Vuex)
 
 let api = new AcsApi
 
+const resourceCollectionMap = new Map(
+  [['alarmDevices', 'alarm_device'],
+  ['alarmNotices', 'alarm_notice'],
+  ['userLoginInfo', 'user_login_info'],
+  ['alarmPlans', 'alarm_plan'],
+  ['users', 'users'],
+  ['alarmPlansOfOtherType', 'alarm_plan']]
+)
+
 export default new Vuex.Store({
   state: {
     inLogged: false,
     username: '',
     roles: [],
-    acsData: {
-      groups: {},
-      alarmDevices: {},
-      alarmNotices: {},
-      userLoginInfo: {},
-      alarmPlans: {},
-      users: {},
-      alarmPlansOfOtherType: {}
-    },
+    acsData: new Map(
+      [['groups', {}],
+      ['alarmDevices', {}],
+      ['alarmNotices', {}],
+      ['userLoginInfo', {}],
+      ['alarmPlans', {}],
+      ['users', {}],
+      ['alarmPlansOfOtherType', {}]]
+    ),
     common: {}
   },
   getters: {
@@ -33,8 +42,10 @@ export default new Vuex.Store({
     roles: state => state.roles,
     alarmDevices: state => state.acsData.alarmDevices,
     alarmNotices: state => {
+      console.log('getter alarmNotices')
+      console.log(state.acsData.alarmNotices)
       let alarmNotices = state.acsData.alarmNotices
-      if (alarmNotices._embedded && alarmNotices._embedded.alarm_notice) {
+      if (alarmNotices && alarmNotices._embedded && alarmNotices._embedded.alarm_notice) {
         alarmNotices._embedded.alarm_notice.forEach((element) => {
           element.range = element.deviceNames.join()
         })
@@ -44,7 +55,16 @@ export default new Vuex.Store({
     userLoginInfo: state => state.acsData.userLoginInfo,
     alarmPlans: state => state.acsData.alarmPlans,
     users: state => state.acsData.users,
-    alarmPlansOfOtherType: state => state.acsData.alarmPlansOfOtherType
+    alarmPlansOfOtherType: state => state.acsData.alarmPlansOfOtherType,
+    partOfAcsData: (state) => (resourceName) => {
+      console.log('partOfAcsData')
+      console.log(resourceName)
+      console.log(resourceCollectionMap)
+      console.log(resourceCollectionMap.get(resourceName))
+      console.log(state.acsData[resourceName]._embedded)
+      console.log(state.acsData[resourceName]._embedded[resourceCollectionMap.get(resourceName)])
+      return state.acsData[resourceName]._embedded[resourceCollectionMap.get(resourceName)]
+    }
   },
   mutations: {
     updateInLogged(state, inLogged) {
@@ -89,7 +109,9 @@ export default new Vuex.Store({
       state.acsData.alarmDevices = alarmDevices
     },
     updateAlarmNotices(state, alarmNotices) {
+      console.log('updateAlarmNotices')
       state.acsData.alarmNotices = alarmNotices
+      console.log(state.acsData.alarmNotices)
     },
     updateUserLoginInfo(state, userLoginInfo) {
       state.acsData.userLoginInfo = userLoginInfo
@@ -102,6 +124,11 @@ export default new Vuex.Store({
     },
     updateAlarmPlansOfOtherType(state, alarmPlansOfOtherType) {
       state.acsData.alarmPlansOfOtherType = alarmPlansOfOtherType
+    },
+    updateAcsData(state, { resourceName, data }) {
+      console.log(resourceName)
+      console.log(data)
+      state.acsData[resourceName] = data
     }
   },
   actions: {
@@ -117,7 +144,7 @@ export default new Vuex.Store({
     },
     updateAlarmNotices({ commit }) {
       return new Promise((resolve, reject) => {
-        api.getAlarmNotices().then((res) => {
+        api.getAlarmNotices(null, null, 'noticeTime,desc').then((res) => {
           commit('updateAlarmNotices', res.data)
           resolve()
         }).catch(error => {
@@ -163,6 +190,42 @@ export default new Vuex.Store({
         }).catch(error => {
           reject(error)
         })
+      })
+    },
+    nextPage({ commit, state }, resourceName) {
+      return new Promise((resolve, reject) => {
+        console.log('resourceName: ' + resourceName)
+        console.log(state.acsData)
+        console.log(state.acsData[resourceName])
+        console.log(state.acsData[resourceName]._links)
+        console.log(state.acsData[resourceName]._links.next)
+        if (state.acsData[resourceName]._links && state.acsData[resourceName]._links.next) {
+          api.get(state.acsData[resourceName]._links.next.href).then((res) => {
+            commit('updateAcsData', { 'resourceName': resourceName, 'data': res.data })
+            resolve()
+            return
+          }).catch(error => {
+            reject(error)
+            return
+          })
+        } else {
+          reject(new Error('no next page'))
+        }
+      })
+    },
+    prevPage({ commit, state }, resourceName) {
+      return new Promise((resolve, reject) => {
+        if (state.acsData[resourceName]._links && state.acsData[resourceName]._links.prev) {
+          api.get(state.acsData[resourceName]._links.prev.href).then((res) => {
+            commit('updateAcsData', { 'resourceName': resourceName, 'data': res.data })
+            resolve()
+            return
+          }).catch(error => {
+            reject(error)
+          })
+        } else {
+          reject(new Error('no prev page'))
+        }
       })
     }
   }
