@@ -116,7 +116,7 @@ export default {
       let api = new AcsApi();
       console.log(this.user);
       api
-        .addUser(this.user.name, this.user.userDesc, this.user.password, this.role)
+        .addUser(this.user.name, this.user.name, this.user.password, this.role)
         .then(() => {
           alert("添加成功");
         })
