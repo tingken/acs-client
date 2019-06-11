@@ -28,14 +28,14 @@
         <div class="note">设备状态</div>
         <div class="input_area">
           <select name="type" v-model="alarmDevice.status">
-            <option disabled value>选择告警类型</option>
+            <option disabled value>选择设备状态</option>
             <option value="NORMAL">正常</option>
             <option value="PENDING">维护</option>
           </select>
         </div>
         <span style="float:left">
           <input type="button" v-on:click="save" value="保存">
-          <input type="button" class="cancel" onclick="alert('Hello World!')" value="取消">
+          <input type="button" class="cancel" onclick="$router.go(-1)" value="取消">
         </span>
       </form>
     </div>
@@ -100,7 +100,7 @@ export default {
         // add
         console.log(this.alarmDevice);
         api
-          .addAlarmPlan(this.alarmDevice)
+          .addAlarmDevice(this.alarmDevice)
           .then(() => {
             alert("添加成功");
           })
