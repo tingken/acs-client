@@ -4,7 +4,7 @@ import Constants from './config'
 axios.defaults.withCredentials = true;
 let AcsApi = (function () {
     function AcsApi() { };
-    AcsApi.prototype.get = function(path, page, size, sort){
+    AcsApi.prototype.get = function (path, page, size, sort) {
         return new Promise((resolve, reject) => {
             let url = path;
             if (page || size || sort) {
@@ -14,16 +14,17 @@ let AcsApi = (function () {
                     url = url + '?';
                 }
                 if (page) {
-                    url = url + 'page=' + page;
+                    url = url + 'page=' + page + '&';
                 }
                 if (size) {
-                    url = url + 'size=' + size;
+                    url = url + 'size=' + size + '&';
                 }
                 if (sort) {
-                    url = url + 'sort=' + sort;
+                    url = url + 'sort=' + sort + '&';
                 }
             }
             axios.get(url).then((res) => {
+                console.log('get ' + url + ' success');
                 console.log(res);
                 if (res.status === 200) {
                     resolve(res);
@@ -31,7 +32,7 @@ let AcsApi = (function () {
                 }
                 reject(res);
             }).catch((error) => {
-                console.log('get ' + resource + ' error');
+                console.log('get ' + url + ' error');
                 console.log(error)
                 reject(error);
             })
@@ -47,13 +48,13 @@ let AcsApi = (function () {
                     url = url + '?';
                 }
                 if (page) {
-                    url = url + 'page=' + page;
+                    url = url + 'page=' + page + '&';
                 }
                 if (size) {
-                    url = url + 'size=' + size;
+                    url = url + 'size=' + size + '&';
                 }
                 if (sort) {
-                    url = url + 'sort=' + sort;
+                    url = url + 'sort=' + sort + '&';
                 }
             }
             axios.get(url).then((res) => {
@@ -134,10 +135,10 @@ let AcsApi = (function () {
                     resolve(res);
                     return;
                 }
-                console.log('add links error');
+                console.log('update links error');
                 reject(res);
             }).catch((error) => {
-                console.log('add links error');
+                console.log('update links error');
                 console.log(error)
                 reject(error);
             })
@@ -268,7 +269,7 @@ let AcsApi = (function () {
     AcsApi.prototype.playPlan = function (alarmPlan) {
         return new Promise((resolve, reject) => {
             console.log(alarmPlan._links.self.href)
-            let id = alarmPlan._links.self.href.substring( alarmPlan._links.self.href.lastIndexOf('/') + 1)
+            let id = alarmPlan._links.self.href.substring(alarmPlan._links.self.href.lastIndexOf('/') + 1)
             let url = Constants.API_PREFIX + 'api/v1/alarmPlans/' + id + '/play';
             axios.post(url).then((res) => {
                 console.log(res);
@@ -286,7 +287,7 @@ let AcsApi = (function () {
     };
     AcsApi.prototype.getPlanStatus = function (alarmPlan) {
         return new Promise((resolve, reject) => {
-            let id = alarmPlan._links.self.href.substring( alarmPlan._links.self.href.lastIndexOf('/') + 1)
+            let id = alarmPlan._links.self.href.substring(alarmPlan._links.self.href.lastIndexOf('/') + 1)
             let url = Constants.API_PREFIX + 'api/v1/alarmPlans/' + id + '/status';
             axios.get(url).then((res) => {
                 console.log(res);
@@ -304,6 +305,9 @@ let AcsApi = (function () {
     };
     AcsApi.prototype.getAlarmNotices = function (page, size, sort) {
         return getResource('alarmNotices', page, size, sort)
+    };
+    AcsApi.prototype.addAlarmNotice = function (obj) {
+        return addResource('alarmNotices', obj)
     };
     AcsApi.prototype.getAnemoData = function (page, size, sort) {
         let url = Constants.API_PREFIX + 'anemoData';
@@ -330,13 +334,13 @@ let AcsApi = (function () {
             if (page || size || sort) {
                 url = url + '?';
                 if (page) {
-                    url = url + 'page=' + page;
+                    url = url + 'page=' + page + '&';
                 }
                 if (size) {
-                    url = url + 'size=' + size;
+                    url = url + 'size=' + size + '&';
                 }
                 if (sort) {
-                    url = url + 'sort=' + sort;
+                    url = url + 'sort=' + sort + '&';
                 }
             }
             axios.get(url).then((res) => {
@@ -378,13 +382,13 @@ let AcsApi = (function () {
             if (page || size || sort) {
                 url = url + '?';
                 if (page) {
-                    url = url + 'page=' + page;
+                    url = url + 'page=' + page + '&';
                 }
                 if (size) {
-                    url = url + 'size=' + size;
+                    url = url + 'size=' + size + '&';
                 }
                 if (sort) {
-                    url = url + 'sort=' + sort;
+                    url = url + 'sort=' + sort + '&';
                 }
             }
             axios.get(url).then((res) => {
@@ -401,6 +405,9 @@ let AcsApi = (function () {
             })
         })
     };
+    AcsApi.prototype.addAlarmDevice = function (obj) {
+        return addResource('alarmDevices', obj)
+    }
     AcsApi.prototype.refreshDevices = function () {
         return new Promise((resolve, reject) => {
             axios.post(Constants.API_PREFIX + 'api/v1/alarmDevices/refresh').then((res) => {
@@ -428,6 +435,22 @@ let AcsApi = (function () {
                 reject(res);
             }).catch((error) => {
                 console.log('refreshDevices error');
+                console.log(error)
+                reject(error);
+            })
+        })
+    }
+    AcsApi.prototype.getAlarmDeviceGroups = function () {
+        return new Promise((resolve, reject) => {
+            axios.get(Constants.API_PREFIX + 'api/v1/alarmDevices/groups').then((res) => {
+                console.log(res);
+                if (res.status === 200) {
+                    resolve(res);
+                    return;
+                }
+                reject(res);
+            }).catch((error) => {
+                console.log('getAlarmDeviceGroups error');
                 console.log(error)
                 reject(error);
             })
