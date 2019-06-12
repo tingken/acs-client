@@ -64,6 +64,12 @@ export default new Vuex.Store({
       console.log(state.acsData[resourceName]._embedded)
       console.log(state.acsData[resourceName]._embedded[resourceCollectionMap.get(resourceName)])
       return state.acsData[resourceName]._embedded[resourceCollectionMap.get(resourceName)]
+    },
+    pageOfAcsData: (state) => (resourceName) => {
+      if (state.acsData[resourceName]) {
+        return state.acsData[resourceName].page
+      }
+      return null
     }
   },
   mutations: {

@@ -10,6 +10,7 @@
       v-bind:headerMap="headerMap"
       v-bind:resultList="planList"
       v-bind:controlFunc="play"
+      resourceName="alarmPlansOfOtherType"
     />
     <!-- <stack-modal
       style="z-index:999"

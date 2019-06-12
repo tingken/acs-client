@@ -1,85 +1,159 @@
 <template>
-  <div id="table_container">
-    <table>
-      <tr class="header">
-        <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
-      </tr>
-      <tr class="data" v-for="(result, index) in resultList" :key="result">
-        <td v-for="it in headers" :key="it">
-          <p v-if="it !== 'status'">{{result[it]}}</p>
-          <span v-else>
-            <a v-show="result.status === 'NORMAL'" class="to_play" v-on:click="play(result)">点击播放</a>
-            <p class="playing" v-show="result.status === 'BUSY'">正在播放...</p>
-            <span class="play_disabled" v-show="result.status === 'DISABLED'">不可用</span>
-          </span>
-        </td>
-        <td v-if="editPath" class="control">
-          <!-- <div class="control"> -->
-          <span class="edit">
-            <router-link :to="editPath+'/'+index" class="edit_link">编辑</router-link>
-          </span>
-        </td>
-        <td v-if="editPath" class="control">
-          <span class="delete">
-            <a class="remove_link">删除</a>
-          </span>
-          <!-- </div> -->
-        </td>
-        <!-- <td class="control">
+  <div>
+    <div id="table_container" ref="tableContainer">
+      <table>
+        <tr class="header" ref="table">
+          <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
+        </tr>
+        <tr class="data" v-for="(result, index) in resultList" :key="result">
+          <td v-for="it in headers" :key="it">
+            <p v-if="it !== 'status'">{{result[it]}}</p>
+            <span v-else>
+              <a v-show="result.status === 'NORMAL'" class="to_play" v-on:click="play(result)">点击播放</a>
+              <p class="playing" v-show="result.status === 'BUSY'">正在播放...</p>
+              <span class="play_disabled" v-show="result.status === 'DISABLED'">不可用</span>
+            </span>
+          </td>
+          <td v-if="editPath" class="control">
+            <!-- <div class="control"> -->
+            <span class="edit">
+              <router-link :to="editPath+'/'+index" class="edit_link">编辑</router-link>
+            </span>
+          </td>
+          <td v-if="editPath" class="control">
+            <span class="delete">
+              <a class="remove_link">删除</a>
+            </span>
+            <!-- </div> -->
+          </td>
+          <!-- <td class="control">
           <span v-show="result.status === 'IDLE'">
             <a class="to_play">点击播放</a>
           </span>
           <p class="playing" v-show="result.status === 'BUSY'">正在播放...</p>
           <p class="play_disabled" v-show="result.status === 'DISABLED'">不可用</p>
-        </td>-->
-      </tr>
-    </table>
+          </td>-->
+        </tr>
+      </table>
+    </div>
+    <span v-if="isMultiPage" class="pagination">
+      <button v-on:click="goToPrevPage" v-bind:disabled="!hasPrevPage" v-bind:class="{active: hasPrevPage}">上一页</button>
+      <button v-on:click="goToNextPage" v-bind:disabled="!hasNextPage" v-bind:class="{active: hasNextPage}">下一页</button>
+    </span>
   </div>
 </template>
 
 <script>
-import router from "../router";
+import router from '../router';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-  name: "ControlPanel",
+  name: 'ControlPanel',
   props: {
     headers: Array,
     headerMap: Object,
     resultList: Array,
     editPath: String,
-    controlFunc: Function
+    controlFunc: Function,
+    resourceName: String
+  },
+  data: function() {
+    return {
+      isMultiPage: false,
+      hasNextPage: false,
+      hasPrevPage: false
+    };
   },
   mounted: function() {
-    let tableHeight = document.getElementById("table_container").childNodes[0]
+    let tableHeight = document.getElementById('table_container').childNodes[0]
       .offsetHeight;
-    console.log("table height: " + tableHeight);
+    console.log('table height: ' + tableHeight);
     if (tableHeight > 900) {
       tableHeight = 900;
     }
-    document.getElementById("table_container").style.height =
-      tableHeight + "px";
+    document.getElementById('table_container').style.height =
+      tableHeight + 'px';
+    this.isMultiPage = this._isMultiPage();
+    this.hasNextPage = this._hasNextPage();
+    this.hasPrevPage = this._hasPrevPage();
   },
   updated: function() {
-    let tableHeight = document.getElementById("table_container").childNodes[0]
+    let tableHeight = document.getElementById('table_container').childNodes[0]
       .offsetHeight;
-    console.log("table height: " + tableHeight);
+    console.log('table height: ' + tableHeight);
     if (tableHeight > 900) {
       tableHeight = 900;
     }
-    document.getElementById("table_container").style.height =
-      tableHeight + "px";
+    document.getElementById('table_container').style.height =
+      tableHeight + 'px';
+    this.isMultiPage = this._isMultiPage();
+    this.hasNextPage = this._hasNextPage();
+    this.hasPrevPage = this._hasPrevPage();
   },
   methods: {
+    ...mapActions(['nextPage', 'prevPage']),
     edit: function(index) {
-      router.push(this.editPath + "/" + index);
+      router.push(this.editPath + '/' + index);
     },
     play: function(plan) {
       this.controlFunc(plan);
-      // plan.status = "BUSY";
+      // plan.status = 'BUSY';
       // setTimeout(() => {
-      //   plan.status = "NORMAL";
+      //   plan.status = 'NORMAL';
       // }, 2000);
+    },
+    goToNextPage: function() {
+      this.nextPage(this.resourceName).then(() => {
+        console.log(this.partOfAcsData(this.resourceName));
+        console.log(this.$refs.tableContainer);
+        this.$refs.tableContainer.scrollTop = 0;
+        window.scrollTo(0, 0);
+        this.resultList = this.partOfAcsData(this.resourceName);
+        this.isMultiPage = this._isMultiPage();
+        this.hasNextPage = this._hasNextPage();
+        this.hasPrevPage = this._hasPrevPage();
+      });
+    },
+    goToPrevPage: function() {
+      this.prevPage(this.resourceName).then(() => {
+        console.log(this.partOfAcsData(this.resourceName));
+        console.log(this.$refs.tableContainer);
+        this.$refs.tableContainer.scrollTop = 0;
+        window.scrollY = 0;
+        this.resultList = this.partOfAcsData(this.resourceName);
+        this.isMultiPage = this._isMultiPage();
+        this.hasNextPage = this._hasNextPage();
+        this.hasPrevPage = this._hasPrevPage();
+      });
+    },
+    _isMultiPage: function() {
+      if (this.pageOfAcsData(this.resourceName)) {
+        return this.pageOfAcsData(this.resourceName).totalPages > 1;
+      }
+      return false;
+    },
+    _hasNextPage: function() {
+      if (this.pageOfAcsData(this.resourceName)) {
+        console.log(
+          'this.partOfAcsData(this.resourceName).number: ' +
+            this.pageOfAcsData(this.resourceName).number
+        );
+        return (
+          this.pageOfAcsData(this.resourceName).number <
+          this.pageOfAcsData(this.resourceName).totalPages - 1
+        );
+      }
+      return false;
+    },
+    _hasPrevPage: function() {
+      if (this.pageOfAcsData(this.resourceName)) {
+        return this.pageOfAcsData(this.resourceName).number > 0;
+      }
+      return false;
     }
+  },
+  computed: {
+    ...mapGetters(['partOfAcsData', 'pageOfAcsData'])
   }
 };
 </script>
@@ -213,5 +287,35 @@ div.control {
   font-family: MicrosoftYaHeiUILight;
   font-weight: 300;
   color: rgba(153, 153, 153, 1);
+}
+.pagination {
+  bottom: 30px;
+  right: 200px;
+  position: absolute;
+}
+button.active {
+  margin: 0 5px;
+  background-color: #4099ff;
+  color: #fff;
+  min-width: 30px;
+  cursor: pointer;
+  display: inline-block;
+  box-sizing: border-box;
+  text-align: center;
+}
+button {
+  margin: 0 5px;
+  background-color: #f4f4f5;
+  color: #606266;
+  min-width: 30px;
+  cursor: default;
+  display: inline-block;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 4px;
+  padding: 5px 5px;
+  font-size: 14px;
+  font-family: MicrosoftYaHeiUILight;
+  font-weight: 300;
 }
 </style>
