@@ -6,24 +6,19 @@
       <form>
         <div class="note">设备名称</div>
         <div class="input_area">
-          <input v-model="alarmDevice.name" type="text" placeholder="输入设备名称">
+          <input v-model.trim="alarmDevice.name" type="text" placeholder="输入设备名称">
         </div>
         <div class="note">设备位置</div>
         <div class="input_area">
-          <input v-model="alarmDevice.address" type="text" placeholder="输入设备位置">
+          <input v-model.trim="alarmDevice.address" type="text" placeholder="输入设备位置">
         </div>
         <div class="note">设备IP</div>
         <div class="input_area">
-          <input v-model="alarmDevice.ip" type="text" placeholder="输入设备IP">
+          <input v-model.trim="alarmDevice.ip" type="text" placeholder="输入设备IP">
         </div>
         <div class="note">设备ID</div>
         <div class="input_area">
-          <input
-            v-model.number="alarmDevice.termId"
-            type="number"
-            min="0"
-            placeholder="输入设备ID"
-          >
+          <input v-model.number="alarmDevice.termId" type="number" min="0" placeholder="输入设备ID">
         </div>
         <div class="note">设备状态</div>
         <div class="input_area">
@@ -64,7 +59,7 @@ export default {
       this.alarmDevice = this.alarmPlans._embedded.alarm_plan[index];
       console.log(this.alarmDevice);
     }
-    next()
+    next();
   },
   computed: {
     ...mapGetters(["alarmPlans", "alarmDevices"])
@@ -77,11 +72,22 @@ export default {
       console.log(this.alarmDevice);
     }
   },
-  watch: {
-  },
+  watch: {},
   methods: {
     ...mapActions(["updateAlarmDevices"]),
     save: function() {
+      if (!this.alarmDevice.termId) {
+        alert("请输入设备ID");
+        return;
+      }
+      if (!this.alarmDevice.ip) {
+        alert("请输入设备IP");
+        return;
+      }
+      if (!this.alarmDevice.name) {
+        alert("输入设备名称");
+        return;
+      }
       let api = new AcsApi();
       if (this.alarmDevice._links) {
         this.alarmDevice.alarmDevices = null;
