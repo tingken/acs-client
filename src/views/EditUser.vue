@@ -25,7 +25,7 @@
         </div>
         <span style="float:left">
           <input type="button" v-on:click="save" value="保存">
-          <input type="button" class="cancel" onclick="alert('Hello World!')" value="取消">
+          <input type="button" class="cancel" v-on:click="$router.go(-1)" value="取消">
         </span>
       </form>
     </div>
