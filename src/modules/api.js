@@ -91,11 +91,11 @@ let AcsApi = (function () {
     AcsApi.prototype.addLinks = function (url, links) {
         return new Promise((resolve, reject) => {
             let linksText = ''
-            if (links instanceof Array) {
+            if (Array.isArray(links)) {
                 for (let i in links) {
                     linksText += links[i] + '\n'
                 }
-            } else if (links instanceof String) {
+            } else if (typeof links === 'string') {
                 linksText = links
             } else {
                 reject({ message: 'param links is invalid' })
@@ -118,18 +118,18 @@ let AcsApi = (function () {
     }
     AcsApi.prototype.updateLinks = function (url, links) {
         return new Promise((resolve, reject) => {
-            // let linksText = ''
-            // if (links instanceof Array) {
-            //     for (let i in links) {
-            //         linksText += links[i] + '\n'
-            //     }
-            // } else if (links instanceof String) {
-            //     linksText = links
-            // } else {
-            //     reject({ message: 'param links is invalid' })
-            //     return
-            // }
-            axios.put(url, links, { headers: { 'Content-Type': 'text/uri-list' } }).then((res) => {
+            let linksText = ''
+            if (Array.isArray(links)) {
+                for (let i in links) {
+                    linksText += links[i] + '\n'
+                }
+            } else if (typeof links === 'string') {
+                linksText = links
+            } else {
+                reject({ message: 'param links is invalid' })
+                return
+            }
+            axios.put(url, linksText, { headers: { 'Content-Type': 'text/uri-list' } }).then((res) => {
                 console.log(res);
                 if (res.status === 204) {
                     resolve(res);
