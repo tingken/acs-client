@@ -144,7 +144,9 @@ export default {
       let api = new AcsApi();
       if (this.alarmPlan._links) {
         this.alarmPlan.alarmDevices = null;
-        // this.alarmPlan._links = {};
+        if (this.alarmPlan.status === "DISABLED") {
+          this.alarmPlan.status = "NORMAL";
+        }
         // update
         api
           .updateResource(this.alarmPlan._links.self.href, this.alarmPlan)
