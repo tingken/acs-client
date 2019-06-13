@@ -13,15 +13,15 @@
         </div>
         <div class="note">账号ID</div>
         <div class="input_area">
-          <input v-model="user.name" type="text" placeholder="输入账号ID">
+          <input v-model.trim="user.name" type="text" placeholder="输入账号ID">
         </div>
         <div class="note">账号描述</div>
         <div class="input_area">
-          <input v-model="user.userDesc" type="text" placeholder="输入账号描述">
+          <input v-model.trim="user.userDesc" type="text" placeholder="输入账号描述">
         </div>
         <div class="note">密码</div>
         <div class="input_area">
-          <input class="input-block" v-model="password" type="password" placeholder="请输入密码">
+          <input class="input-block" v-model.trim="password" type="password" placeholder="请输入密码">
         </div>
         <span style="float:left">
           <input type="button" v-on:click="save" value="保存">
@@ -56,7 +56,7 @@ export default {
       this.user = this.users._embedded.users[index];
       console.log(this.user);
     }
-    next()
+    next();
   },
   computed: {
     ...mapGetters(["users"])
@@ -111,14 +111,27 @@ export default {
     }
   },
   methods: {
-    save: function(){
-      // 
+    save: function() {
+      // check input
+      if (!this.role) {
+        alert("请选择用户类型");
+        return;
+      }
+      if (!this.user.name) {
+        alert("请输入用户ID");
+        return;
+      }
+      if (!this.user.password && !this.password) {
+        alert("请输入密码");
+        return;
+      }
+      // access api
       let api = new AcsApi();
       if (this.user._links) {
         // this.user._links = {};
-        let pwd = this.password.trim()
-        if(pwd.length > 0){
-          var bcrypt = require('bcryptjs');
+        let pwd = this.password.trim();
+        if (pwd.length > 0) {
+          var bcrypt = require("bcryptjs");
           this.user.password = bcrypt.hashSync(pwd);
         }
         // update
