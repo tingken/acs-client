@@ -97,15 +97,17 @@ export default {
   watch: {
     user: function(val) {
       console.log("val.authorities.type:" + typeof val.authorities);
-      this.role =
-        val.authorities.findIndex((authority, index) => {
-          if (authority.role === "ROLE_ADMIN") {
-            return true;
-          }
-          return false;
-        }) >= 0
-          ? "ROLE_ADMIN"
-          : "ROLE_USER";
+      if (val.authorities) {
+        this.role =
+          val.authorities.findIndex((authority, index) => {
+            if (authority.role === "ROLE_ADMIN") {
+              return true;
+            }
+            return false;
+          }) >= 0
+            ? "ROLE_ADMIN"
+            : "ROLE_USER";
+      }
     }
   },
   methods: {
