@@ -7,7 +7,15 @@
           <th v-for="header in headers" :key="header">{{headerMap[header]}}</th>
         </tr>
         <tr class="data" v-for="(result, index) in innerResultList" :key="result">
-          <td v-for="it in headers" :key="it">{{result[it]}}</td>
+          <td v-for="it in headers" :key="it">
+            <p v-if="it !== 'status'">{{result[it]}}</p>
+            <span v-else>
+              <p v-if="result.status === 'NORMAL'">正常</p>
+              <p v-if="result.status === 'PENDING'">维护</p>
+              <p v-if="result.status === 'DISABLED'">不可用</p>
+              <p v-if="result.status === 'DELETED'">已移除</p>
+            </span>
+          </td>
           <td v-if="editPath" class="control">
             <!-- <div class="control"> -->
             <span class="edit">
