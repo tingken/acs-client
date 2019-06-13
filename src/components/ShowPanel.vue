@@ -25,7 +25,7 @@
     </div>
     <span v-if="isMultiPage" class="pagination">
       <button v-on:click="goToPrevPage" v-bind:disabled="!hasPrevPage" v-bind:class="{active: hasPrevPage}">上一页</button>
-      <button v-on:click="goToNextPage" v-bind:class="{active: hasNextPage}">下一页</button>
+      <button v-on:click="goToNextPage" v-bind:disabled="!hasNextPage" v-bind:class="{active: hasNextPage}">下一页</button>
     </span>
   </div>
 </template>
